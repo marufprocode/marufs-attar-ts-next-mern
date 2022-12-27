@@ -14,3 +14,7 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
 }
+
+.pdt-details-btn {
+  @apply px-3 py-1 uppercase transition duration-200 ease-in border-2 border-gray-900 rounded-full hover:bg-gray-800 hover:text-white focus:outline-none
+}
