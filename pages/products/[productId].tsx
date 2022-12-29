@@ -1,13 +1,27 @@
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useContext } from "react";
 import Layout from "../../layout/Layout";
 import products from "../../utilities/products";
 import Image from "next/image";
+import { cartContext } from "../../utilities/CartContext";
+import { toast } from "react-hot-toast";
 
 const ProductDetails = () => {
   const { query } = useRouter();
+  const {cartState, dispatchCart}:any = useContext(cartContext);
   const { productId } = query;
+
   const product = products.find((pdt) => pdt.productId === productId);
+
+  const addToCartHandler = () => {
+    const existItem = cartState.cart.cartItems.find((itm: { productId: string; }) => itm.productId === product?.productId)
+    const quantity = existItem? existItem.quantity+1:1;
+    if(product && product?.countInStock < quantity){
+      return toast.error('Sorry! Not Enough Stock of this product')
+    }
+    dispatchCart({type:"ADD_TO_CART", value:{...product, quantity}})
+  }
+
   if (!product) return "Product Not Found";
   return (
     <Layout title={product?.name}>
@@ -16,7 +30,7 @@ const ProductDetails = () => {
           <div className="lg:w-4/5 mx-auto flex flex-wrap">
             <Image
               alt="ecommerce"
-              className="lg:w-1/2 w-full lg:h-auto h-64 object-cover object-center rounded"
+              className="lg:w-1/2 min-h-[400px] max-w-sm w-full lg:h-auto h-64 object-center rounded"
               src={product?.image}
               width="392"
               height="516"
@@ -32,70 +46,42 @@ const ProductDetails = () => {
               </h1>
               <div className="flex mb-4">
                 <span className="flex items-center">
-                  <svg
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    className="w-4 h-4 text-indigo-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
-                  <svg
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    className="w-4 h-4 text-indigo-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
-                  <svg
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    className="w-4 h-4 text-indigo-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
-                  <svg
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    className="w-4 h-4 text-indigo-500"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
+                  {[1, 2, 3, 4].map((itm, i) => (
+                    <svg
+                      key={i}
+                      fill="currentColor"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      className="w-4 h-4 text-indigo-500"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                    </svg>
+                  ))}
                   <svg
                     fill="none"
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     className="w-4 h-4 text-indigo-500"
                     viewBox="0 0 24 24"
                   >
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                   </svg>
-                  <span className="text-gray-600 ml-3">{product?.numReviews} Reviews</span>
+                  <span className="text-gray-600 ml-3">
+                    {product?.numReviews} Reviews
+                  </span>
                 </span>
                 <span className="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">
                   <a className="text-gray-500">
                     <svg
                       fill="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       className="w-5 h-5"
                       viewBox="0 0 24 24"
                     >
@@ -105,9 +91,9 @@ const ProductDetails = () => {
                   <a className="text-gray-500">
                     <svg
                       fill="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       className="w-5 h-5"
                       viewBox="0 0 24 24"
                     >
@@ -117,9 +103,9 @@ const ProductDetails = () => {
                   <a className="text-gray-500">
                     <svg
                       fill="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       className="w-5 h-5"
                       viewBox="0 0 24 24"
                     >
@@ -128,39 +114,53 @@ const ProductDetails = () => {
                   </a>
                 </span>
               </div>
-              <p className="leading-relaxed">
-                {product?.description}
-              </p>
+              <p className="leading-relaxed">{product?.description}</p>
               <div className="mt-6 pb-5 border-b-2 border-gray-100 mb-5">
-                <div className="flex gap-3 mb-3">
-                    <p><strong>Volume:</strong> {product?.volume}</p>
-                    |
-                    <p><strong>Type:</strong> {product?.fragranceType}</p>
-                    |
-                    <p><strong>Fragrance:</strong> {product?.fragranceName}</p>
+                <div className="flex gap-3 mb-3 flex-wrap">
+                  <p>
+                    <strong>Volume:</strong> {product?.volume}
+                  </p>
+                  |
+                  <p>
+                    <strong>Type:</strong> {product?.fragranceType}
+                  </p>
+                  |
+                  <p>
+                    <strong>Fragrance:</strong> {product?.fragranceName}
+                  </p>
                 </div>
-                <p><strong>Top Node: </strong>{product?.topNote}</p>
-                <p><strong>Middle Node: </strong>{product?.middleNote}</p>
-                <p><strong>Base Node: </strong>{product?.baseNote}</p>
+                <p>
+                  <strong>Top Node: </strong>
+                  {product?.topNote}
+                </p>
+                <p>
+                  <strong>Middle Node: </strong>
+                  {product?.middleNote}
+                </p>
+                <p>
+                  <strong>Base Node: </strong>
+                  {product?.baseNote}
+                </p>
               </div>
-              <div className="flex">
+              <div className="relative flex flex-col sm:flex-row items-left sm:items-center gap-3 sm:gap-0">
                 <div className="">
-                <span className="title-font font-medium text-2xl text-gray-900">
-                  ${product?.price}
-                </span>
-                <span className="text-xs pl-1">
+                  <span className="title-font font-medium text-2xl text-gray-900">
+                    ${product?.price}
+                  </span>
+                  <br />
+                  <span className="text-xs pl-1">
                     ({product?.countInStock} in stock.)
-                </span>
+                  </span>
                 </div>
-                <button className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
+                <button className="flex sm:ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-center justify-center place-self-start sm:place-self-center" onClick={addToCartHandler}>
                   Add to Cart
                 </button>
-                <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 transition-all hover:bg-red-300 hover:text-red-500 ml-4">
+                <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 transition-all hover:bg-red-300 hover:text-red-500 ml-4 absolute top-2 right-0 sm:static">
                   <svg
                     fill="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     className="w-5 h-5"
                     viewBox="0 0 24 24"
                   >

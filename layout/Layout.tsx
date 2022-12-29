@@ -1,6 +1,5 @@
-import React from 'react';
 import Head from 'next/head'
-import Link from 'next/link';
+import Navbar from '../components/Navbar';
 
 const Layout = ({title, children}:any) => {
     return (
@@ -13,15 +12,7 @@ const Layout = ({title, children}:any) => {
         </Head>
         <div className='min-h-screen flex flex-col justify-between'>
             <header>
-                <nav className='flex items-center h-12 px-6 justify-between shadow-md'>
-                    <Link href="/">
-                        <span className='text-lg font-bold'>Maruf's Attar</span>
-                    </Link>
-                    <div>
-                        <Link href="/Cart" className='px-3 py-2'>Cart</Link>
-                        <Link href="/Login" className='px-3 py-2'>Login</Link>
-                    </div>
-                </nav>
+                <Navbar/>
             </header>
             <main className='w-full m-auto mt-4 px-6'>
                 {children}
