@@ -19,7 +19,7 @@ const ProductDetails = () => {
     if(product && product?.countInStock < quantity){
       return toast.error('Sorry! Not Enough Stock of this product')
     }
-    dispatchCart({type:"ADD_TO_CART", value:{...product, quantity}})
+    dispatchCart({type:"ADD_TO_CART", payload:{...product, quantity}})
   }
 
   if (!product) return "Product Not Found";

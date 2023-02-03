@@ -12,10 +12,21 @@ const initialState = {
 function reducer (state:any, action:any) {
     switch(action.type){
         case 'ADD_TO_CART':{
-            const newItem = action.value;
+            const newItem = action.payload;
             const existItem = state.cart.cartItems?.find((item: { productId: string; }) => item.productId === newItem.productId);
             const cartItems = existItem ? state.cart.cartItems?.map((item: { productId: string; }) => item.productId === existItem.productId ? newItem:item):[...state.cart.cartItems, newItem]
             return {...state, cart: {...state.cart, cartItems}}
+        }
+        case 'CLEAR_CART':{
+            return initialState
+        }
+        case 'REMOVE_ITEM':{
+            const cartItems = state.cart.cartItems.filter((item:{ productId: string; }) => item.productId !== action.payload.productId)
+            return {...state, cart:{...state.cart, cartItems}}
+        }
+        case 'UPDATE_QTY':{
+            const cartItems = state.cart.cartItems.map((item:{ productId: string; }) => item.productId === action.payload.productId ? action.payload: item)
+            return {...state, cart:{...state.cart, cartItems}}
         }
         default: return state
     }

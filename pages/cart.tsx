@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import React, { useContext } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { RiDeleteBin6Fill } from "react-icons/ri";
@@ -6,9 +7,43 @@ import Layout from "../layout/Layout";
 import { cartContext } from "../utilities/CartContext";
 
 const CartPage = () => {
-  const { cartState }:any = useContext(cartContext);
+  const { cartState, dispatchCart }:any = useContext(cartContext);
 
-  type cartItemType = typeof cartState.cart.cartItems;
+  interface cartItemType {
+    productId: string,
+    name: string,
+    image: string,
+    price: number,
+    brand: string,
+    rating: number,
+    numReviews: number,
+    countInStock: number,
+    volume: string,
+    fragranceType: string,
+    fragranceName: string,
+    topNote: string,
+    middleNote: string,
+    baseNote: string,
+    description: string,
+    quantity:number
+      }
+
+  let totalPrice = cartState.cart?.cartItems.reduce((a:number,c:any) => a+c.price*c.quantity, 0)
+
+  const handleRemoveItem = (item:cartItemType) => {
+    console.log(item)
+    dispatchCart({type:'REMOVE_ITEM', payload: item})
+  }
+
+  const handleUpdateQuantity = (item:cartItemType, action:string) => {
+    const existItem = cartState.cart.cartItems.find((itm: { productId: string; }) => itm.productId === item?.productId)
+    if((action === "minus" && existItem.quantity < 2) || (action === "plus" && existItem.quantity === existItem.countInStock)) {
+      return;
+    }  
+    const updatedItem = action === "plus" ? {...existItem, quantity: existItem.quantity + 1} : {...existItem, quantity: existItem.quantity - 1};
+    console.log(updatedItem)
+    dispatchCart({type:"UPDATE_QTY", payload:updatedItem})
+  }
 
   return (
     <Layout title="shopping-cart">
@@ -34,16 +69,12 @@ const CartPage = () => {
                             alt=""
                             width="150"
                             height="150"
-                            className=""
                           />
                           <button
                             type="button"
                             className="w-7 h-7 flex justify-center items-center rounded-md bg-gray-300 rmv-from-cart-btn mt-3"
-                            /* onClick={() =>
-                              dispatch(removeFromCart(cartProduct.id))
-                            } */
                           >
-                            <span className="btn-square-icon">
+                            <span className="btn-square-icon cursor-pointer" onClick={()=>handleRemoveItem(cartProduct)}>
                               <RiDeleteBin6Fill/>
                             </span>
                           </button>
@@ -55,20 +86,13 @@ const CartPage = () => {
                           </h6>
                           <div className="qty mt-3 mb-[6px] flex">
                             <span className="text-light-blue qty-text mr-[10px]">
-                              Qty:{" "}
+                              Qty:
                             </span>
                             <div className="qty-change flex items-center">
                               <button
                                 type="button"
                                 className="border w-8 h-8 border-[rgba(0,0,0,0.1)] transition-all hover:border-[rgba(0,0,0,0.3)] flex justify-center items-center bg-slate-100"
-                                /* onClick={() =>
-                                  dispatch(
-                                    toggleCartQty({
-                                      id: cartProduct.id,
-                                      type: "DEC",
-                                    })
-                                  )
-                                } */
+                                onClick={()=> handleUpdateQuantity(cartProduct, "minus")}
                               >
                                 <FaMinus/>
                               </button>
@@ -78,14 +102,7 @@ const CartPage = () => {
                               <button
                                 type="button"
                                 className="text-light-blue w-8 h-8 border border-[rgba(0,0,0,0.1)] transition-all hover:border-[rgba(0,0,0,0.3)] flex justify-center items-center bg-slate-100"
-                                /* onClick={() =>
-                                  dispatch(
-                                    toggleCartQty({
-                                      id: cartProduct.id,
-                                      type: "INC",
-                                    })
-                                  )
-                                } */
+                                onClick={()=> handleUpdateQuantity(cartProduct, "plus")}
                               >
                                <FaPlus/>
                               </button>
@@ -93,12 +110,12 @@ const CartPage = () => {
                           </div>
                           <div className="flex flex-col md:flex-row justify-between pr-3">
                             <div className="text-pine-green fw-4 fs-15 price">
-                              Price : 00
+                              Price : ${cartProduct.price}
                             </div>
                             <div className="sub-total py-[6px] font-semibold text-lg text-regal-blue">
                               <span>Sub Total: $</span>
                               <span className="">
-                                00
+                                {cartProduct.price*cartProduct.quantity}
                               </span>
                             </div>
                           </div>
@@ -110,7 +127,7 @@ const CartPage = () => {
                   <button
                     type="button"
                     className="bg-red-400 px-3 py-1 rounded-md text-white hover:bg-red-500 transition-all mt-3"
-                    // onClick={() => dispatch(clearCart())}
+                    onClick={() => dispatchCart({type: 'CLEAR_CART'})}
                   >
                     <span className="fs-16">Clear Cart</span>
                   </button>
@@ -125,7 +142,7 @@ const CartPage = () => {
                         <span className="fw-4">
                           Selected items(s) Price
                         </span>
-                        <span className="fw-7">00$</span>
+                        <span className="fw-7">{totalPrice}$</span>
                       </li>
                       <li className="flex justify-between my-[6px]">
                         <span className="fw-4">Discount</span>
@@ -138,20 +155,20 @@ const CartPage = () => {
                         <span className="fw-4">Delivery Cost</span>
                         <span className="fw-7">
                           <span className="fw-5 text-gold">+&nbsp;</span>
-                            00$
+                            10$
                         </span>
                       </li>
                     </ul>
                     <div className="cart-summary-total mt-auto mb-4 pt-3 border-t border-t-slate-600 flex justify-between text-lg font-semibold">
-                      <span className="fw-6">Grand Total: </span>
+                      <span className="fw-6">Grand Total:</span>
                       <span className="fw-6">
-                        00$
+                      {totalPrice+10}$
                       </span>
                     </div>
                     <div className="cart-summary-btn">
-                      <button type="button" className="w-full text-white font-semibold bg-slate-600 hover:bg-slate-700 py-2">
+                      <Link href="/checkout" type="button" className="w-full text-white font-semibold bg-slate-600 hover:bg-slate-700 p-2 flex justify-center">
                         Proceed to Checkout
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
