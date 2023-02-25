@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useContext } from "react";
@@ -181,4 +182,4 @@ const CartPage = () => {
   );
 };
 
-export default CartPage;
+export default dynamic(()=> Promise.resolve(CartPage), {ssr:false});

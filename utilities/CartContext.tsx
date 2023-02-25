@@ -1,9 +1,13 @@
 import React, { createContext, useReducer } from 'react';
+import Cookies from 'js-cookie'
+
 
 export const cartContext = createContext({});
 
+const storedCart = Cookies.get('cart')
+
 const initialState = {
-    cart: {cartItems:[]}
+    cart: storedCart ? JSON.parse(storedCart): {cartItems:[]} 
 }
 
 
@@ -15,17 +19,21 @@ function reducer (state:any, action:any) {
             const newItem = action.payload;
             const existItem = state.cart.cartItems?.find((item: { productId: string; }) => item.productId === newItem.productId);
             const cartItems = existItem ? state.cart.cartItems?.map((item: { productId: string; }) => item.productId === existItem.productId ? newItem:item):[...state.cart.cartItems, newItem]
+            Cookies.set('cart', JSON.stringify({...state.cart, cartItems}))
             return {...state, cart: {...state.cart, cartItems}}
         }
         case 'CLEAR_CART':{
+            Cookies.set('cart', JSON.stringify({...state.cart, cartItems:[]}))
             return initialState
         }
         case 'REMOVE_ITEM':{
             const cartItems = state.cart.cartItems.filter((item:{ productId: string; }) => item.productId !== action.payload.productId)
+            Cookies.set('cart', JSON.stringify({...state.cart, cartItems}))
             return {...state, cart:{...state.cart, cartItems}}
         }
         case 'UPDATE_QTY':{
             const cartItems = state.cart.cartItems.map((item:{ productId: string; }) => item.productId === action.payload.productId ? action.payload: item)
+            Cookies.set('cart', JSON.stringify({...state.cart, cartItems}))
             return {...state, cart:{...state.cart, cartItems}}
         }
         default: return state
