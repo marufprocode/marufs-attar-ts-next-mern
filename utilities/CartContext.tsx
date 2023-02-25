@@ -24,7 +24,7 @@ function reducer (state:any, action:any) {
         }
         case 'CLEAR_CART':{
             Cookies.set('cart', JSON.stringify({...state.cart, cartItems:[]}))
-            return initialState
+            return {...state, cart:{...state.cart, cartItems:[]}}
         }
         case 'REMOVE_ITEM':{
             const cartItems = state.cart.cartItems.filter((item:{ productId: string; }) => item.productId !== action.payload.productId)

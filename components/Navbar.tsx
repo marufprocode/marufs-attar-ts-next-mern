@@ -1,12 +1,17 @@
 import Link from "next/link";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaCartPlus } from 'react-icons/fa';
 import { cartContext } from "../utilities/CartContext";
 
 
 const Navbar = () => {
     const {cartState}:any = useContext(cartContext);
-    console.log(cartState);
+    const [itemCount, setItemCount] = useState(null);
+
+    useEffect(()=> {
+      setItemCount(cartState?.cart?.cartItems?.reduce((a: any,c: { quantity: number; })=> a+c.quantity, 0))
+    },[cartState?.cart?.cartItems])
+
   return (
     <nav className="flex items-center h-12 px-6 py-8 justify-between shadow-md">
       {/* Brand Icon Left */}
@@ -18,7 +23,7 @@ const Navbar = () => {
         <Link href="/cart" className="px-3 py-2 relative">
           <button className="flex items-center">
           <FaCartPlus className="w-5 h-5"/>
-          <span className="absolute -top-1 right-0 font-bold">{cartState?.cart.cartItems.reduce((a: any,c: { quantity: number; })=> a+c.quantity, 0)}</span>
+          <span className="absolute -top-1 right-0 font-bold">{itemCount}</span>
           </button>
         </Link>
         <Link href="/Login" className="px-3 py-2">
